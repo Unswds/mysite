@@ -6,12 +6,13 @@ Django settings for config project.
 # ──────────────────────────── 공통 상단부 ────────────────────────────
 from pathlib import Path
 from dotenv import load_dotenv
-import os, sys, json
+import os, sys, json, base64
 from google.oauth2 import service_account   # ← Vision 외에 필요 없으면 삭제 OK
 from google.cloud import vision_v1
 
 # 1) 프로젝트 루트 (…/manage.py 위치)
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+load_dotenv(BASE_DIR / ".env")      
 
 # ── Google Vision creds 로딩 ─────────────────────────
 import base64, json, sys
@@ -23,12 +24,12 @@ b64 = os.getenv("GOOGLE_CREDENTIALS_B64")
 if b64:
     try:
         creds_info = json.loads(base64.b64decode(b64))
-        VISION_CREDENTIALS = service_account.Credentials.from_service_account_info(
-            creds_info
-        )
-        print("✓ Google creds: loaded from BASE64")
+        VISION_CREDENTIALS = service_account.Credentials.from_service_account_info(creds_info)
+        print("✓ Google creds: loaded from B64")
     except Exception as e:
-        print("⚠ B64 decode error →", e, file=sys.stderr)
+        print("⚠ B64 decode error:", e, file=sys.stderr)
+else:
+    raise RuntimeError("GOOGLE_CREDENTIALS_B64 환경변수를 .env에 설정하세요")
 
 # ↓ JSON / 파일 경로 fallback 로직이 있다면 그대로 두세요
 
