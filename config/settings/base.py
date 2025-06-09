@@ -32,7 +32,11 @@ if b64:
 
 # ↓ JSON / 파일 경로 fallback 로직이 있다면 그대로 두세요
 
-
+import os, base64, json
+from google.oauth2 import service_account
+VISION_CREDENTIALS = service_account.Credentials.from_service_account_info(
+    json.loads(base64.b64decode(b64))
+)
 
 # 2) .env 로드 (파일이 없어도 조용히 넘어감)
 load_dotenv(BASE_DIR / ".env")
