@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<div class="container mt-5" style="max-width:900px;">
+  <div class="card shadow p-4 fade-in-up">
+    <h3 class="text-center mb-3">📝텍스트 분석</h3>
+
+    <form id="imgForm" class="d-flex gap-2 mb-3">
+      {% csrf_token %}
+      <input id="sceneTxt" name="message" class="form-control flex-grow-1"
+             placeholder="장면을 한글로 입력하세요…" autocomplete="off" required>
+      <button class="btn btn-success flex-shrink-0">생성</button>
+    </form>
+
+    <div id="status" class="small text-muted mb-2"></div>
+    <img id="preview" class="img-fluid rounded shadow d-none" alt="generated image">
+    <p id="prompt" class="mt-2 small fst-italic"></p>
+  </div>
+  
+<!-- ───── JS (이미지 생성용) ───── -->
+<script>
+  (() => {
+    const form   = document.getElementById('imgForm');
+    if (!form) return;
+
+    const input  = document.getElementById('sceneTxt');
+    const imgEl  = document.getElementById('preview');
+    const stat   = document.getElementById('status');
+    const prompt = document.getElementById('prompt');
+    const csrf   = document.querySelector('#imgForm [name=csrfmiddlewaretoken]').value;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const txt = input.value.trim();
+      if (!txt) return;
+
+      stat.textContent = "⏳ 그림을 생성 중…";
+      imgEl.classList.add('d-none');
+      prompt.textContent = "";
+
+      fetch("{% url 'pybo:analyze_text' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrf,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({ message: txt })
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        if (data.url) {
+          imgEl.src = data.url;
+          imgEl.classList.remove('d-none');
+          prompt.textContent = "Prompt: " + data.prompt;
+          stat.textContent = "✅ 완료!";
+        } else {
+          stat.textContent = "⚠️ " + (data.error || "알 수 없는 오류");
+        }
+      })
+      .catch(() => stat.textContent = "⚠️ 네트워크 오류");
+    });
+  })();
+</script>
+{% endblock %}

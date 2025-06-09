@@ -1,0 +1,153 @@
+{# templates/common/auth.html #}
+{% extends "base.html" %}
+{% load static widget_tweaks %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'auth.css' %}">
+<style>
+  /* ── 카드 + 에러·메시지 패널 스택 구조 ── */
+  .auth-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  .auth-wrapper {
+    position: relative;
+  }
+
+  /* ── 성공 메시지 (녹색) ── */
+  .message-panel-top {
+    max-width: 600px;
+    width: 90%;
+    background: #2ecc71;
+    color: #fff;
+    padding: .75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: .9rem;
+    text-align: center;
+  }
+
+  /* ── 오류 패널 (빨간) ── */
+  .error-panel-top {
+    max-width: 600px;
+    width: 90%;
+    background: #e74c3c;
+    color: #fff;
+    padding: .75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: .9rem;
+    line-height: 1.4;
+  }
+  .error-panel-top ul {
+    margin: .5rem 0 0 1.2rem;
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="auth-stack">
+
+  {# ── 메시지 우선, 없으면 회원가입 오류, 그다음 로그인 오류 ── #}
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="message-panel-top {{ msg.tags }}">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% elif signup_form.errors %}
+    <div class="error-panel-top">
+      <strong>회원가입 오류</strong>
+      <ul>
+        {% for field, errs in signup_form.errors.items %}
+          {% for err in errs %}
+            <li>{{ err }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% elif login_form.errors %}
+    <div class="error-panel-top">
+      <strong>로그인 오류</strong>
+      <ul>
+        {% for field, errs in login_form.errors.items %}
+          {% for err in errs %}
+            <li>{{ err }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="auth-wrapper" id="container">
+
+    {# ─── 회원가입 폼 ─── #}
+    <div class="form-container sign-up-container">
+      <form method="post" action="{% url 'common:auth_portal' %}">
+        {% csrf_token %}
+        <h1>Create Account</h1>
+        <span>or use your email</span>
+
+        <div class="mb-3">
+          {{ signup_form.username|add_class:"form-control"|attr:"placeholder:Username" }}
+        </div>
+        <div class="mb-3">
+          {{ signup_form.email   |add_class:"form-control"|attr:"placeholder:Email" }}
+        </div>
+        <div class="mb-3">
+          {{ signup_form.password1|add_class:"form-control"|attr:"placeholder:Password" }}
+        </div>
+        <div class="mb-3">
+          {{ signup_form.password2|add_class:"form-control"|attr:"placeholder:Confirm" }}
+        </div>
+
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+
+    {# ─── 로그인 폼 ─── #}
+    <div class="form-container sign-in-container">
+      <form method="post" action="{% url 'common:auth_portal' %}">
+        {% csrf_token %}
+        <h1>Sign in</h1>
+        <span>or use your account</span>
+
+        <div class="mb-3">
+          {{ login_form.username|add_class:"form-control"|attr:"placeholder:Username" }}
+        </div>
+        <div class="mb-3">
+          {{ login_form.password|add_class:"form-control"|attr:"placeholder:Password" }}
+        </div>
+
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
+
+    {# ─── 오버레이 패널 ─── #}
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>Please log in with your personal info</p>
+          <button class="ghost" id="signIn">Sign In</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your personal details and start your journey</p>
+          <button class="ghost" id="signUp">Sign Up</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.auth-wrapper -->
+</div><!-- /.auth-stack -->
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'auth.js' %}"></script>
+{% endblock extra_js %}

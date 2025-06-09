@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<div class="container mt-5" style="max-width:900px;">
+  <div class="card shadow p-4 fade-in-up">
+    <h2 class="text-center mb-3">🔍 사진 분석</h2>
+
+    <!-- ① 남은 횟수 표시 -->
+    <p class="text-end small text-muted mb-3">
+      오늘 남은 분석 횟수: <strong>{{ remaining }}</strong> / 20
+    </p>
+
+    <!-- ② 메시지 출력 -->
+    {% if messages %}
+  {% for msg in messages %}
+    {# 로그인-성공(success)은 그냥 소비만 하고 표시하지 않는다 #}
+    {% if "success" not in msg.tags %}
+      <div class="alert alert-{{ msg.tags }} py-2">
+        {{ msg }}
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+    <!-- ③ 이미지 업로드 폼 -->
+    <form id="generate-form"
+          method="post"
+          enctype="multipart/form-data"
+          action="{% url 'pybo:generate' %}">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-md-6 text-center">
+          <label for="imageInput" class="form-label">이미지 파일을 업로드하세요!</label>
+          <input type="file"
+                 class="form-control mb-3"
+                 id="imageInput"
+                 name="image"
+                 accept="image/*"
+                 required>
+          <button type="submit"
+                  class="btn btn-gradient w-100 mb-3">
+            이미지 생성하기
+          </button>
+          <div id="loading" style="display:none; margin-top:20px;">
+            <div class="spinner-border" role="status" style="width:3rem; height:3rem;">
+              <span class="visually-hidden">로딩 중...</span>
+            </div>
+            <p>이미지 생성중...</p>
+          </div>
+        </div>
+        <div class="col-md-6 text-center">
+          <label for="instructions" class="form-label">추가 요청사항</label>
+          <textarea id="instructions"
+                    name="instructions"
+                    rows="3"
+                    class="form-control"
+                    placeholder="수정하고 싶은 점을 말씀해주세요!"></textarea>
+        </div>
+      </div>
+    </form>
+
+    <!-- ④ 생성된 이미지 목록 -->
+    {% if images %}
+      <hr class="my-4">
+      <h3 class="mb-3">생성된 이미지와 원본 프롬프트</h3>
+      <div class="row">
+        {% for prompt, url in images %}
+          <div class="col-sm-6 mb-4 text-center">
+            <p class="small text-muted mb-2">{{ prompt }}</p>
+            <img src="{{ url }}" class="img-fluid rounded shadow-sm">
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ⑤ JS: 로딩 인디케이터 토글 -->
+<script>
+  const genForm = document.getElementById('generate-form');
+  const loading = document.getElementById('loading');
+
+  genForm.addEventListener('submit', () => {
+    loading.style.display = 'block';
+  });
+</script>
+{% endblock %}

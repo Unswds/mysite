@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<!-- ─────────── 메인 페이지 Hero 섹션 ─────────── -->
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <!-- 프로젝트 제목 -->
+    <h1 class="display-4 fw-bold mb-3">📚SASA AI 라이브러리</h1>
+    <!-- 간단한 소개 -->
+    <p class="lead text-muted">이미지·텍스트를 한곳에서 다루는 올‑인‑원 AI 도구입니다.<br class="d-none d-md-block">손쉬운 분석·생성·검색 기능을 경험해 보세요!</p>
+  </div>
+
+  <!-- ─────────── 기능 소개 카드 ─────────── -->
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <!-- 기능 1: 사진 분석 -->
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="card-title fw-semibold">🔍사진 분석</h3>
+          <p class="card-text small text-muted">AI 비전 모델로 이미지를 분석하고, 핵심 정보를 추출합니다. OCR·객체 인식 결과를 한눈에 확인할 수 있어요.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 기능 2: 텍스트 분석 -->
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="card-title fw-semibold">📝텍스트 분석</h3>
+          <p class="card-text small text-muted">자연어 이해(NLU) 엔진으로 감정·요약·키워드 추출까지! 입력한 문장을 다각도로 분석해 줍니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 기능 3: 책 찾아보기 -->
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="card-title fw-semibold">📖책 찾아보기</h3>
+          <p class="card-text small text-muted">커버 이미지를 클릭해 AI 도서관을 탐험하세요. 개인화 추천으로 새 책을 쉽고 빠르게 발견할 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

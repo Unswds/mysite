@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<div class="container mt-5" style="max-width:900px;">
+  <div class="card shadow p-4 fade-in-up">
+    <h3 class="text-center mb-3">📝 텍스트 분석</h3>
+
+    <!-- 남은 횟수 표시 -->
+    <p class="text-end small text-muted mb-4">
+      오늘 남은 분석 횟수: <strong>{{ remaining }}</strong> / 20
+    </p>
+
+    <!-- 분석 요청 폼 -->
+    <form id="analysis-form" class="d-flex gap-2 mb-3">
+      {% csrf_token %}
+      <input
+        id="sceneTxt"
+        name="message"
+        class="form-control flex-grow-1"
+        placeholder="분석할 텍스트를 입력하세요…"
+        autocomplete="off"
+        required
+      >
+      <button type="submit" class="btn btn-gradient flex-shrink-0">
+        생성
+      </button>
+    </form>
+
+    <!-- 결과 표시 영역 -->
+    <div id="status" class="small text-muted mb-2"></div>
+    <img id="preview" class="img-fluid rounded shadow d-none" alt="generated image">
+    <p id="prompt" class="mt-2 small fst-italic"></p>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const form      = document.getElementById('analysis-form');
+    if (!form) return;
+
+    const input     = document.getElementById('sceneTxt');
+    const status    = document.getElementById('status');
+    const preview   = document.getElementById('preview');
+    const promptEl  = document.getElementById('prompt');
+    const csrfToken = document.querySelector('#analysis-form [name=csrfmiddlewaretoken]').value;
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      status.textContent    = '⏳ 분석을 요청 중…';
+      preview.classList.add('d-none');
+      promptEl.textContent   = '';
+
+      fetch("{% url 'pybo:analyze_text' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({ message: text })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) {
+          preview.src = data.url;
+          preview.classList.remove('d-none');
+          promptEl.textContent = 'Prompt: ' + data.prompt;
+          status.textContent   = '✅ 완료!';
+        } else {
+          status.textContent = '⚠️ ' + (data.error || '알 수 없는 오류');
+        }
+      })
+      .catch(() => {
+        status.textContent = '⚠️ 네트워크 오류';
+      });
+    });
+  })();
+</script>
+{% endblock %}

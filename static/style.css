@@ -1,0 +1,103 @@
+/* ───────────────────────────────
+   Global Modern Refresh – v2025
+   Author: ChatGPT Design Pass ✨
+   Description: A light glass‑morphic
+   interface with soft gradients and
+   sensible defaults for forms, cards,
+   navbar and utilities. Drop‑in
+   replacement for the previous
+   style.css – no template edits
+   needed. Enjoy!
+───────────────────────────────*/
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* ---------- CSS‑Variables ---------- */
+:root{
+  /* Palette */
+  --clr-primary: #4f46e5;    /* indigo‑600 */
+  --clr-primary-dark:#4338ca;
+  --clr-accent:  #ec4899;    /* pink‑500 */
+  --clr-bg:      #f4f6ff;    /* light backdrop */
+  --clr-surface: #ffffff;
+  --clr-muted:   #6b7280;    /* gray‑500 */
+  --clr-border:  #e5e7eb;    /* gray‑200 */
+
+  /* Typography & radius */
+  --ff-base:     "Inter", system-ui, sans-serif;
+  --fs-base:     16px;
+  --radius-sm:   .5rem;
+  --radius-md:   .75rem;
+  --radius-lg:   1rem;
+
+  /* Shadow presets */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.12);
+  --shadow-lg: 0 14px 28px rgba(0,0,0,.18);
+}
+
+/* Dark mode adjustment */
+@media (prefers-color-scheme: dark){
+  :root{
+    --clr-bg:#1f2937;        /* gray‑800 */
+    --clr-surface:#111827;   /* gray‑900 */
+    --clr-muted:#9ca3af;
+    --clr-border:#374151;
+  }
+}
+
+/* ---------- Global Reset ---------- */
+*{box-sizing:border-box;}
+html,body{height:100%;font-family:var(--ff-base);font-size:var(--fs-base);margin:0;color:#111827;background:var(--clr-bg);}
+img{max-width:100%;display:block;height:auto;border-radius:var(--radius-sm);}a{text-decoration:none;color:var(--clr-primary);}
+a:hover{color:var(--clr-primary-dark);}button,input,textarea,select{font:inherit;}
+
+/* ---------- Layout Helpers ---------- */
+.container{max-width:960px;padding:2rem;margin-inline:auto;}
+.card{background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:2rem;transition:box-shadow .25s ease,transform .25s ease;}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);} 
+
+/* Glassy navbar */
+.navbar{backdrop-filter:blur(12px) saturate(120%);background:rgba(255,255,255,.8)!important;border-bottom:1px solid rgba(0,0,0,.05);box-shadow:var(--shadow-sm);} /* override bootstrap */
+.navbar .nav-link{font-weight:500;color:#374151!important;transition:color .2s;}
+.navbar .nav-link:hover{color:var(--clr-primary)!important;}
+.navbar-brand{font-weight:700;letter-spacing:-.5px;color:var(--clr-primary)!important;}
+
+/* ---------- Buttons ---------- */
+.btn,.form_btn{--_bg:linear-gradient(135deg,var(--clr-primary)0%,var(--clr-accent)100%);
+  color:#fff;font-weight:600;padding:.75rem 1.5rem;border:none;border-radius:var(--radius-md);cursor:pointer;box-shadow:var(--shadow-sm);transition:box-shadow .25s ease,transform .15s ease;background:var(--_bg);}
+.btn:hover,.form_btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);} 
+.btn:active,.form_btn:active{transform:translateY(0);box-shadow:var(--shadow-sm);} 
+
+/* Outline & subtle buttons */
+.btn-outline{background:transparent;color:var(--clr-primary);border:2px solid var(--clr-primary);} 
+.btn-outline:hover{background:var(--clr-primary);color:#fff;}
+
+/* ---------- Forms ---------- */
+input[type="text"],input[type="file"],textarea,.form-control{
+  width:100%;padding:.875rem 1rem;background:#f9fafb;border:1px solid var(--clr-border);border-radius:var(--radius-md);box-shadow:inset 0 1px 2px rgba(0,0,0,.03);transition:border-color .2s,box-shadow .2s;}
+input:focus,textarea:focus,.form-control:focus{outline:none;border-color:var(--clr-primary);box-shadow:0 0 0 3px rgba(79,70,229,.35);} 
+
+textarea{resize:vertical;min-height:120px;}
+
+/* File input tweak */
+input[type="file"]{padding:.5rem;background:#fff;}
+
+/* Loading spinner container */
+#loading{color:var(--clr-muted);} 
+
+/* ---------- Image grid ---------- */
+.image-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;}
+.image-grid p{margin:.5rem 0;font-weight:500;color:var(--clr-muted);} 
+
+/* ---------- Utility classes ---------- */
+.text-center{text-align:center;} .mt-4{margin-top:2rem;} .mb-4{margin-bottom:2rem;} .rounded-lg{border-radius:var(--radius-lg);} 
+
+/* ---------- Animations ---------- */
+@keyframes fadeInUp{0%{opacity:0;transform:translateY(20px);}100%{opacity:1;transform:translateY(0);}}
+.fade-in-up{animation:fadeInUp .6s cubic-bezier(.16,1,.3,1) both;}
+
+/* ---------- Responsive tweaks ---------- */
+@media(max-width:640px){
+  .container{padding:1rem;}
+  .navbar-brand{font-size:1rem;}
+}

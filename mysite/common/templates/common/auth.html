@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static widget_tweaks %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+  <div class="auth-wrapper" id="container">
+
+    {# ───────── 회원가입 폼 ───────── #}
+    <div class="form-container sign-up-container">
+      <form method="post" action="{% url 'common:auth_portal' %}">
+        {% csrf_token %}
+        <h1>Create Account</h1>
+        <span>or use your email</span>
+
+        {{ signup_form.username|add_class:"form-control"|attr:"placeholder:Username" }}
+        {{ signup_form.email|add_class:"form-control"|attr:"placeholder:Email" }}
+        {{ signup_form.password1|add_class:"form-control"|attr:"placeholder:Password" }}
+        {{ signup_form.password2|add_class:"form-control"|attr:"placeholder:Confirm" }}
+
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+
+    {# ───────── 로그인 폼 ───────── #}
+    <div class="form-container sign-in-container">
+      <form method="post" action="{% url 'common:auth_portal' %}">
+        {% csrf_token %}
+        <h1>Sign in</h1>
+        <span>or use your account</span>
+
+        {{ login_form.username|add_class:"form-control"|attr:"placeholder:Username" }}
+        {{ login_form.password|add_class:"form-control"|attr:"placeholder:Password" }}
+
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
+
+    {# ───────── 오버레이 패널 ───────── #}
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>Please log in with your personal info</p>
+          <button class="ghost" id="signIn">Sign In</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your personal details and start your journey</p>
+          <button class="ghost" id="signUp">Sign Up</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.auth-wrapper -->
+</div>
+
+<script src="{% static 'auth.js' %}"></script>
+{% endblock %}

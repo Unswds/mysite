@@ -1,0 +1,44 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Pybo - 커뮤니티 질문과 답변 서비스">
+  <meta name="keywords" content="Pybo, 질문, 답변, 커뮤니티, 웹 서비스">
+  <meta name="author" content="SASA Team">
+
+  <!-- Favicon -->
+  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+  <!-- Site-wide Custom CSS (theme) -->
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+
+  {# ─ 페이지 전용 CSS 삽입용 블록 ─ #}
+  {% block extra_css %}{% endblock %}
+
+  <title>{% block title %}SASA{% endblock %}</title>
+</head>
+
+<body>
+  <!-- ─ Navigation Bar ─ -->
+  {% include "navbar.html" %}
+
+  <!-- ─ Page Content ─ -->
+  {% block content %}{% endblock %}
+
+  <!-- ─ Global JS ─ -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="{% static 'bootstrap.bundle.min.js' %}"></script>
+
+  {# ─ 페이지 전용 JS 삽입용 블록 ─ #}
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

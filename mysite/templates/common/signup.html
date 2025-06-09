@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<div class="wrapper">
+  <div class="container">
+    <!-- 회원가입 폼 -->
+    <div class="form-container sign-up-container">
+      <form method="post" action="{% url 'common:signup' %}">
+        {% csrf_token %}
+        
+        <h1>Create Account</h1>
+        
+        <!-- Username Field -->
+        <div class="form-group">
+          <input type="text" name="username" placeholder="Name" value="{{ form.username.value|default_if_none:'' }}">
+          {% if form.username.errors %}
+            <div class="error-message">
+              {% for error in form.username.errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Email Field -->
+        <div class="form-group">
+          <input type="email" name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}">
+          {% if form.email.errors %}
+            <div class="error-message">
+              {% for error in form.email.errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Password1 Field -->
+        <div class="form-group">
+          <input type="password" name="password1" placeholder="Password">
+          {% if form.password1.errors %}
+            <div class="error-message">
+              {% for error in form.password1.errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Password2 Field -->
+        <div class="form-group">
+          <input type="password" name="password2" placeholder="Confirm Password">
+          {% if form.password2.errors %}
+            <div class="error-message">
+              {% for error in form.password2.errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <button class="form_btn">Sign Up</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

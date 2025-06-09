@@ -1,0 +1,59 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+  <div class="container-fluid">
+    <!-- 브랜드 로고/텍스트 -->
+    <a class="navbar-brand" href="{% url 'pybo:main' %}">SASA</a>
+
+    <!-- 모바일 토글 버튼 -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="토글 네비게이션">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+
+      {# ────── ① 왼쪽 메뉴 영역 ────── #}
+      {% if user.is_authenticated %}
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'pybo:photo_analysis' %}">사진 분석</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'pybo:text_analysis' %}">텍스트 분석</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'pybo:book_search' %}">책 찾아보기</a>
+          </li>
+        </ul>
+      {% else %}
+        <!-- 비로그인 상태: 자리를 잡아주기 위한 빈 ul -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+      {% endif %}
+
+      {# ────── ② 오른쪽 사용자/버튼 영역 ────── #}
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        {% if user.is_authenticated %}
+          <!-- 사용자 이름 + 로그아웃 버튼 -->
+          <li class="nav-item d-flex align-items-center">
+            <span class="navbar-text me-2">({{ user.username }}님)</span>
+            <form method="post" action="{% url 'common:logout' %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit"
+                      class="btn btn-sm btn-outline-danger d-flex align-items-center">
+                <i class="bi bi-box-arrow-right me-1"></i>
+                로그아웃
+              </button>
+            </form>
+          </li>
+        {% else %}
+          <!-- ★ 중복 if 제거, 비로그인 버튼만 남김 -->
+          <li class="nav-item">
+            <a class="btn" href="{% url 'common:auth_portal' %}">로그인 / 회원가입</a>
+          </li>
+        {% endif %}
+      </ul>
+
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>

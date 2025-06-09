@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<div class="container mt-5" style="max-width:900px;">
+  <div class="card shadow p-4 fade-in-up">
+    <h2 class="mb-4 text-center">🔍사진 분석</h2>
+
+  <form id="generate-form" method="post" enctype="multipart/form-data" action="{% url 'pybo:generate' %}">
+    {% csrf_token %}
+    <div class="row">
+      <!-- 왼쪽: 이미지 업로드 및 생성 -->
+      <div class="col-md-6">
+        <div class="mb-3 text-center">
+          <label for="imageInput" class="form-label">이미지 파일을 업로드하세요!</label>
+          <input type="file" class="form-control" id="imageInput" name="image" accept="image/*" required>
+        </div>
+
+        <div class="mb-3 text-center">
+          <button type="submit" class="form_btn generate-btn">이미지 생성하기</button>
+        </div>
+
+        <!-- 로딩 인디케이터 -->
+        <div id="loading" style="display:none; margin-top:20px; text-align:center;">
+          <div class="spinner-border text-primary" role="status" style="width:3rem; height:3rem;">
+            <span class="visually-hidden">로딩 중...</span>
+          </div>
+          <p>이미지 생성중...</p>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 추가 요청 입력 -->
+      <div class="col-md-6">
+        <div class="form-group text-center">
+          <label for="instructions" class="form-label">추가 요청사항</label>
+          <textarea id="instructions"
+                    name="instructions"
+                    rows="3"
+                    placeholder="수정하고 싶은 점을 말씀해주세요!"></textarea>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  {% if images %}
+    <hr>
+    <h3 class="mt-4">생성된 이미지와 내용 요약</h3>
+    <div class="row">
+      {% for prompt, url in images %}
+        <div class="col-sm-6 mb-4 text-center">
+          <p>{{ prompt }}</p>
+          <img src="{{ url }}" class="img-fluid rounded shadow-sm">
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  const genForm = document.getElementById('generate-form');
+  const loading = document.getElementById('loading');
+
+  genForm.addEventListener('submit', () => {
+    loading.style.display = 'block';
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Main Page</title>
+  {% load static %}
+  <style>
+    /* 기본 레이아웃 스타일 */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    /* 사이드바 스타일 */
+    .sidebar {
+      width: 25%;
+      background-color: #f1f1f1;
+      padding: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    /* 메뉴 스타일 */
+    .menu {
+      margin-bottom: 20px;
+    }
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .menu li {
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    .menu li:hover {
+      background-color: #e0e0e0;
+    }
+    .menu li.active {
+      font-weight: bold;
+      background-color: #d0d0d0;
+    }
+    /* 인증(로그인/회원가입/로그아웃) 버튼 영역 */
+    .auth-buttons a {
+      display: block;
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      text-decoration: none;
+      border: 1px solid #007bff;
+      color: #007bff;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .auth-buttons a.signup {
+      background-color: #007bff;
+      color: #fff;
+    }
+    /* 환영 메시지 스타일 */
+    .welcome-message {
+      font-size: 0.8em;
+      margin: 0 0 5px 0;
+      text-align: center;
+    }
+    /* 오른쪽 콘텐츠 영역 */
+    .content {
+      flex: 1;
+      background-color: #ffffff;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    /* 섹션 공통 스타일 */
+    .section {
+      display: none; /* 기본적으로는 숨김 */
+    }
+    /* 메시지 표시 스타일 (회원가입 등) */
+    .messages {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #e0ffe0;
+      border: 1px solid #00a000;
+      border-radius: 4px;
+      color: #006600;
+    }
+    /* 텍스트 정보 입력 섹션 예시 스타일 (간단히 GPT 스타일) */
+    .chat-input-container {
+      display: flex;
+      margin-top: 10px;
+    }
+    .chat-input-container input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+    }
+    .chat-input-container button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    .chat-input-container button:hover {
+      background-color: #0056b3;
+    }
+    /* 로그인 유도 섹션 스타일 */
+    .login-required {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .login-required p {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 사이드바 영역 -->
+    <div class="sidebar">
+      <!-- 메뉴 -->
+      <div class="menu">
+        <ul>
+          <!-- 홈(로그인 불필요) -->
+          <li class="active" data-section="home-section" data-require-login="false">홈</li>
+          <!-- 사진 분석(로그인 필요) -->
+          <li data-section="photo-section" data-require-login="true">사진 분석</li>
+          <!-- 텍스트 정보 입력(로그인 필요) -->
+          <li data-section="text-section" data-require-login="true">텍스트 정보 입력</li>
+          <!-- 책 살펴보기(로그인 필요) -->
+          <li data-section="book-section" data-require-login="true">책 살펴보기</li>
+        </ul>
+      </div>
+
+      <!-- 로그인/회원가입 or 로그아웃 버튼 -->
+      <div class="auth-buttons">
+        {% if user.is_authenticated %}
+          <p class="welcome-message">{{ user.username }}님 환영합니다</p>
+          <a href="{% url 'logout' %}">로그아웃</a>
+        {% else %}
+          <a href="{% url 'login' %}">로그인</a>
+          <a href="{% url 'signup' %}" class="signup">회원가입</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 오른쪽 메인 콘텐츠 영역 -->
+    <div class="content">
+      <!-- 회원가입 후 메시지 표시 (예: "회원가입 되었습니다") -->
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- 홈 섹션 -->
+      <div class="section" id="home-section" style="display:block;">
+        <h2>홈</h2>
+        <p>안녕하세요</p>
+      </div>
+
+      <!-- 사진 분석 섹션 -->
+      <div class="section" id="photo-section">
+        <h2>사진 분석</h2>
+        <button>분석</button>
+      </div>
+
+      <!-- 텍스트 정보 입력 섹션 -->
+      <div class="section" id="text-section">
+        <h2>텍스트 정보 입력</h2>
+        <p>무엇이든 물어보세요</p>
+        <div class="chat-input-container">
+          <input type="text" placeholder="질문을 입력하세요...">
+          <button>전송</button>
+        </div>
+      </div>
+
+      <!-- 책 살펴보기 섹션 -->
+      <div class="section" id="book-section">
+        <h2>책 살펴보기</h2>
+        <p>책 목록 또는 내용을 여기에 표시할 예정입니다.</p>
+      </div>
+
+      <!-- 로그인 유도 섹션: 로그인 안 된 상태로 접근 시 표시 -->
+      <div class="section" id="login-required-section">
+        <div class="login-required">
+          <h2>더 나은 서비스를 활용하려면 로그인하세요</h2>
+          <p>
+            <a href="{% url 'login' %}" style="border:1px solid #007bff;color:#007bff;
+               padding:8px 16px;text-decoration:none;border-radius:4px;display:inline-block;margin-bottom:10px;">
+               로그인
+            </a>
+          </p>
+          <p>
+            <a href="{% url 'signup' %}" style="border:1px solid #007bff;background-color:#007bff;color:#fff;
+               padding:8px 16px;text-decoration:none;border-radius:4px;display:inline-block;">
+               회원가입
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 회원가입 메시지 자동 사라짐 (3초 후) -->
+  <script>
+    setTimeout(function() {
+      var messageDiv = document.querySelector('.messages');
+      if (messageDiv) {
+        messageDiv.style.display = 'none';
+      }
+    }, 3000);
+
+    // 로그인 여부 (Django 템플릿 변수를 JS에서 사용)
+    var isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+
+    // 메뉴 클릭 이벤트 처리
+    const menuItems = document.querySelectorAll('.menu li');
+    const sections = document.querySelectorAll('.section');
+
+    menuItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // 모든 섹션 숨김
+        sections.forEach(section => {
+          section.style.display = 'none';
+        });
+        // 모든 메뉴의 active 제거
+        menuItems.forEach(m => m.classList.remove('active'));
+
+        // 현재 메뉴에 active 추가
+        this.classList.add('active');
+
+        // 로그인 필요 여부
+        const requiresLogin = this.getAttribute('data-require-login') === 'true';
+
+        if (requiresLogin && !isAuthenticated) {
+          // 로그인 안 된 상태로 로그인 필요한 메뉴 클릭 시
+          document.getElementById('login-required-section').style.display = 'block';
+        } else {
+          // 해당 섹션 보이기
+          const sectionId = this.getAttribute('data-section');
+          document.getElementById(sectionId).style.display = 'block';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
