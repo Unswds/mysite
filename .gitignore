@@ -1,0 +1,4 @@
+# ─── 절대 공개 금지 ───
+secrets/
+config/apikey.py
+*.env
