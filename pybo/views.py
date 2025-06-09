@@ -17,9 +17,6 @@ from google.cloud.vision_v1 import types as vision_types
 from django.conf import settings
 
 # ─── 환경 설정 ─────────────────────────────────────────────
-BASE_DIR = Path(__file__).resolve().parent.parent
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(BASE_DIR)
-
 gpt_client    = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
 # google vision은 settings 에서 만든 creds 를 직접 주입
@@ -28,7 +25,7 @@ from google.cloud import vision_v1
 from django.conf import settings
 
 vision_client = vision_v1.ImageAnnotatorClient(
-    credentials=settings.VISION_CREDENTIALS,   # ★ 핵심
+    credentials=settings.VISION_CREDENTIALS,
     transport="rest",
 )
 
