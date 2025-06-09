@@ -54,12 +54,6 @@ DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER
 # ───── OpenAI & Google Vision 키 ──────────────────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-_google_env    = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "secrets/my_google_key.json")
-GOOGLE_KEY_PATH = Path(_google_env)
-if not GOOGLE_KEY_PATH.is_absolute():
-    GOOGLE_KEY_PATH = BASE_DIR / GOOGLE_KEY_PATH
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(GOOGLE_KEY_PATH)
-
 # ───── 필수 값 누락 시 즉시 실패 ───────────────────────────────────
 _missing = []
 for k, v in {
@@ -68,8 +62,6 @@ for k, v in {
 }.items():
     if not v:
         _missing.append(k)
-if not GOOGLE_KEY_PATH.exists():
-    _missing.append(f"Google key file not found → {GOOGLE_KEY_PATH}")
 if _missing:
     print("\n✖ 누락 환경 변수/파일:", ", ".join(_missing), file=sys.stderr)
     raise RuntimeError("필수 환경 변수를 설정하세요")
