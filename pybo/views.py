@@ -15,14 +15,13 @@ import openai
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types as vision_types
 
-# API 키 설정
-from config.apikey import OPENAI_API_KEY
+from django.conf import settings
 
 # ─── 환경 설정 ─────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(BASE_DIR / "secrets" / "my_google_key.json")
 
-gpt_client    = openai.OpenAI(api_key=OPENAI_API_KEY)
+gpt_client    = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 vision_client = vision_v1.ImageAnnotatorClient(transport="rest")
 
 # ─── 뷰 정의 ────────────────────────────────────────────────────────────
@@ -362,9 +361,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse      # ← AJAX용
 
 import openai
-from config.apikey import OPENAI_API_KEY  # 이미 쓰고 있던 KEY
+from django.conf import settings
 
-gpt_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+gpt_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 from django.shortcuts import render, redirect
