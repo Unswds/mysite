@@ -1,4 +1,9 @@
 # ─── 절대 공개 금지 ───
+# ─── Python 캐시 & 로컬 DB 제외 ───
+__pycache__/
+*.pyc
+db.sqlite3
+mysite-mirror/
 secrets/
 config/apikey.py
 *.env
