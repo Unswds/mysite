@@ -37,8 +37,8 @@
 
 :root {
   /* 배경 하얀색 고정 */
-  --clr-bg: #f8f9fa;
-  --clr-surface: #ffffff;
+  --clr-bg: #f4f6f8;
+  --clr-surface: #f4f6f8;
   /* (나머지 변수들은 그대로 유지) */
 }
 
