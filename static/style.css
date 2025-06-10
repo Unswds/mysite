@@ -113,3 +113,7 @@ input[type="file"]{padding:.5rem;background:#fff;}
   .container{padding:1rem;}
   .navbar-brand{font-size:1rem;}
 }
+
+body {
+  background-color: #EFF6FF !important;
+}
