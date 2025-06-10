@@ -35,14 +35,16 @@
   --shadow-lg: 0 14px 28px rgba(0,0,0,.18);
 }
 
-/* Dark mode adjustment */
-@media (prefers-color-scheme: dark){
-  :root{
-    --clr-bg:#1f2937;        /* gray‑800 */
-    --clr-surface:#111827;   /* gray‑900 */
-    --clr-muted:#9ca3af;
-    --clr-border:#374151;
-  }
+:root {
+  /* 배경 하얀색 고정 */
+  --clr-bg: #ffffff;
+  --clr-surface: #ffffff;
+  /* (나머지 변수들은 그대로 유지) */
+}
+
+/* body 배경 강제 적용 */
+body {
+  background: var(--clr-bg) !important;
 }
 
 /* ---------- Global Reset ---------- */
