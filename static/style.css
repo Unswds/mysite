@@ -49,7 +49,17 @@ body {
 
 /* ---------- Global Reset ---------- */
 *{box-sizing:border-box;}
-html,body{height:100%;font-family:var(--ff-base);font-size:var(--fs-base);margin:0;color:#111827;background:var(--clr-bg);}
+html, body {
+  /* 페이지 바탕 전체를 연한 블루 계열로 */
+  background-color: #EFF6FF;
+}
+
+/* content를 감싸는 래퍼가 있다면(없으면 body만 지정해도 됩니다) */
+.main-wrapper {
+  background-color: #EFF6FF;
+  min-height: 100vh;  /* 화면 전체 높이 채우기 */
+}
+
 img{max-width:100%;display:block;height:auto;border-radius:var(--radius-sm);}a{text-decoration:none;color:var(--clr-primary);}
 a:hover{color:var(--clr-primary-dark);}button,input,textarea,select{font:inherit;}
 

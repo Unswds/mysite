@@ -30,6 +30,12 @@
   <!-- ─ Navigation Bar ─ -->
   {% include "navbar.html" %}
 
+ <!-- ─ Content Wrapper (밝은 블루 배경) ─ -->
+ <div class="main-wrapper">
+    <!-- ─ Page Content ─ -->
+    {% block content %}{% endblock %}
+ </div>
+
   <!-- ─ Page Content ─ -->
   {% block content %}{% endblock %}
 
