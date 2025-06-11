@@ -60,19 +60,27 @@
           </div>
         </div>
 
-        <!-- 오른쪽 추가 요청사항 -->
-        <div class="col-md-6">
-          <label for="instructions" class="form-label">추가 요청사항</label>
-          <textarea
-            id="instructions"
-            name="instructions"
-            rows="5"
-            class="form-control"
-            placeholder="수정하고 싶은 점을 말씀해주세요!"
-          >{{ instructions|default_if_none:"" }}</textarea>
-        </div>
-      </div>
-    </form>
+        <!-- 오른쪽: 추가 요청사항 + ✨장르 선택-->
+    <div class="col-md-6">
+      <label for="genre" class="form-label">소설 장르</label>
+      <select id="genre" name="genre" class="form-select mb-3">
+        <option value="">-- 장르를 선택하세요 --</option>
+        <option value="로맨스">로맨스</option>
+        <option value="판타지">판타지</option>
+        <option value="SF">SF</option>
+        <option value="추리">추리</option>
+        <option value="공포">공포</option>
+      </select>
+
+      <label for="instructions" class="form-label">추가 요청사항</label>
+      <textarea id="instructions" name="instructions"
+                rows="5" class="form-control"
+                placeholder="수정하고 싶은 점을 말씀해주세요!">
+        {{ instructions|default_if_none:"" }}
+      </textarea>
+    </div>
+  </div>
+</form>
 
     <!-- ④ 생성된 이미지 목록 -->
     {% if images %}

@@ -62,11 +62,25 @@ import os
 
 from .models import DailyUsage
 
+# views.py  ── generate_scenes 뷰 (장르 선택 기능 통합版)
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import redirect
+from django.core.files.storage import default_storage
+from django.contrib import messages
+from django.utils import timezone
+from django.conf import settings
+import os
+
+# 이미 존재한다고 가정하는 유틸/모델
+from .models import DailyUsage
+
+
 @csrf_exempt
 @login_required(login_url='common:login')
 def generate_scenes(request):
     """
-    이미지 업로드 → OCR → GPT 프롬프트 → 추가 요청사항 반영 → DALL·E 이미지 생성
+    이미지 업로드 → OCR → GPT 프롬프트 → (추가 요청사항 + 장르 스타일) 반영 → DALL·E 이미지 생성
     결과 리스트를 세션에 담아 photo_analysis로 리다이렉트
     """
     if request.method == "POST":
@@ -77,12 +91,12 @@ def generate_scenes(request):
             messages.error(request, '오늘 이미지·텍스트 분석 사용 횟수를 모두 소진했습니다. 내일 다시 이용해주세요.')
             return redirect('pybo:photo_analysis')
 
-        images = []
-        # 1) 업로드된 이미지와 추가 요청사항 읽기
+        # ── 1) 업로드된 이미지·폼 데이터 읽기
         uploaded_image = request.FILES.get("image")
         instructions   = request.POST.get("instructions", "").strip()
+        genre          = request.POST.get("genre", "").strip()       # ⭐ 장르
 
-        # 2) OCR 수행 (이미지 있을 때만)
+        # ── 2) OCR 수행 (이미지 있을 때만)
         if uploaded_image:
             saved_path = default_storage.save(f'temp/{uploaded_image.name}', uploaded_image)
             full_path  = os.path.join(settings.MEDIA_ROOT, saved_path)
@@ -90,7 +104,7 @@ def generate_scenes(request):
         else:
             ocr_text = ""
 
-        # 3) 텍스트 합치기
+        # ── 3) 텍스트 합치기
         if ocr_text and instructions:
             combined_text = f"{ocr_text}\n\n추가 요청사항:\n{instructions}"
         elif ocr_text:
@@ -98,34 +112,46 @@ def generate_scenes(request):
         else:
             combined_text = instructions
 
-        # 4) GPT로부터 원본 프롬프트 생성
+        # ── 4) GPT로부터 원본 프롬프트 생성
         raw_prompts = generate_prompts(combined_text, instructions)
 
-        # 5) 스타일 태그 추가
+        # ── 5) 장르별 스타일 문구 결정
+        STYLE_MAP = {
+            "로맨스": "부드러운 파스텔 톤 로맨스 삽화 스타일로 그려주세요.",
+            "판타지": "화려한 판타지 소설 삽화 스타일로 그려주세요.",
+            "SF":     "미래적인 SF 삽화 느낌으로 그려주세요.",
+            "추리":   "필름 누아르 분위기의 추리 삽화처럼 그려주세요.",
+            "공포":   "어두운 고딕 호러 삽화 스타일로 그려주세요.",
+        }
+        default_style = "웹툰 스타일로 그려주세요."
+        style_tail = STYLE_MAP.get(genre, default_style)
+        import logging
+        logger = logging.getLogger(__name__)
+        # ── 6) 스타일 태그 추가 + 길이 제한
         styled_prompts = []
         for p in raw_prompts:
-            full = f"{instructions}. {p}" if instructions else p
-            # 프롬프트 과도 길이 방지
-            if len(full) > 250:
-                full = full[:250] + "…"
-            styled_prompts.append(f"{full}, 웹툰 스타일로 그려주세요.")
+            base = f"{instructions}. {p}" if instructions else p
+            if len(base) > 250:
+                base = base[:250] + "…"
+            styled_prompts.append(f"{base}, {style_tail}")
+        logger.debug("▶ 최종 프롬프트: %s", styled_prompts) 
 
-        # 6) DALL·E 이미지 생성
+        # ── 7) DALL·E 이미지 생성
         generated = generate_images(styled_prompts)
         if not generated:
             messages.error(request, '이미지 생성 중 오류가 발생했습니다. 다시 시도해주세요.')
             return redirect('pybo:photo_analysis')
 
-        # 7) raw_prompts와 URL 매핑
+        # ── 8) raw_prompts와 URL 매핑
         images = [
             (raw_prompts[i], generated[i][1])
             for i in range(min(len(raw_prompts), len(generated)))
         ]
 
-        # ── 성공 시 사용량 1회 차감
+        # ── 9) 사용량 1회 차감
         usage.increment()
 
-        # 8) 세션에 결과 저장 후 리다이렉트
+        # ── 10) 세션에 결과 저장 후 리다이렉트
         request.session['generated_images'] = images
         return redirect('pybo:photo_analysis')
 
