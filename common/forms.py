@@ -2,6 +2,13 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
+
+UserModel = get_user_model()
+
 
 class UserForm(forms.ModelForm):
     """회원가입 폼
@@ -54,18 +61,13 @@ class UserForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
-    # ──────────── 저장 로직 ────────────
-    def save(self, commit: bool = True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password1"])  # 해싱
-        if commit:
-            user.save()
-        return user
-
+    
 
 class LoginForm(AuthenticationForm):
-    """로그인 폼 – placeholder & 클래스만 살짝 커스터마이즈"""
+    """
+    - 가입되지 않은 아이디  → “회원가입 해주세요!”
+    - 이메일 미인증(is_active=False) → “이메일이 인증되지 않았습니다.”
+    """
 
     username = forms.CharField(widget=forms.TextInput(attrs={
         "placeholder": "아이디",
@@ -75,3 +77,25 @@ class LoginForm(AuthenticationForm):
         "placeholder": "비밀번호",
         "class": "form-control",
     }))
+
+    # 비밀번호는 맞았지만 is_active=False
+    def confirm_login_allowed(self, user):
+        if not user.is_active:
+            raise forms.ValidationError(
+                _("이메일이 인증되지 않았습니다."),
+                code="inactive",
+            )
+
+    # 아이디 존재 여부 검증
+    def clean(self):
+        try:
+            return super().clean()
+
+        except forms.ValidationError as e:
+            username = self.data.get(self.add_prefix("username"), "")
+            if username and not User.objects.filter(username=username).exists():
+                raise forms.ValidationError(
+                    _("회원가입 해주세요!"),
+                    code="unregistered",
+                ) from e
+            raise

@@ -1,99 +1,93 @@
-# common/views.py – 통합 로그인·회원가입(auth_portal) + 기타 페이지
-
+# common/views.py
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
-
-from .forms import UserForm  # signup용
-
-# ────────────────────────────────────────────
-# 1.  통합 로그인 · 회원가입 포털
-# ────────────────────────────────────────────
-
-# common/views.py
-
-# common/views.py
-
-# common/views.py
-
-# views.py
-
-from django.contrib.auth import login as auth_login
-from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.template.loader import render_to_string
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
-from .forms import UserForm  # signup form
+from .forms import UserForm, LoginForm
 
+User = get_user_model()
 
+# ───────────────────────────────────────────
+# 1.  통합 로그인 · 회원가입 포털
+# ───────────────────────────────────────────
 def auth_portal(request):
-    """
-    /common/auth/  – 로그인·회원가입 슬라이딩 UI 한 페이지
-    prefix="signup" / prefix="login" 으로 어떤 폼을 바인딩할지 구분합니다.
-    """
-    # POST 가 아닐 때, 혹은 제출되지 않은 쪽은 빈 폼으로 생성
-    if request.method == "POST" and "signup-username" in request.POST:
-        signup_form = UserForm(request.POST, prefix="signup")
-    else:
-        signup_form = UserForm(prefix="signup")
+    """ /common/auth/ – 한 페이지에서 로그인·회원가입 핸들링 """
 
-    if request.method == "POST" and "login-username" in request.POST:
-        login_form = AuthenticationForm(request, data=request.POST, prefix="login")
-    else:
-        login_form = AuthenticationForm(prefix="login")
+    # 두 폼 인스턴스 (POST 여부와 관계없이 미리)
+    signup_form = UserForm(request.POST or None, prefix="signup")
+    login_form  = LoginForm(request, data=request.POST or None, prefix="login")
 
-    # 회원가입 처리
+    # ───────── 회원가입 ─────────
     if request.method == "POST" and "signup-username" in request.POST:
         if signup_form.is_valid():
-            user = signup_form.save(commit=False)
-            user.is_active = False
+            user = signup_form.save(commit=False)   # pw 해싱 + is_active=False
             user.save()
 
+            # 이메일 인증 링크 발송
             uid   = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            current_site    = get_current_site(request)
-            activation_path = reverse('common:activate', args=[uid, token])
-            activation_link = request.build_absolute_uri(activation_path)
+            activation_link = request.build_absolute_uri(
+                reverse("common:activate", args=[uid, token])
+            )
 
             subject = "이메일 인증을 완료해 주세요"
             message = render_to_string(
-                'common/activation_email.html',
-                {'user': user, 'activation_link': activation_link}
+                "common/activation_email.html",
+                {"user": user, "activation_link": activation_link},
             )
-            user.email_user(subject=subject, message=message)
 
-            messages.success(
-                request,
-                "인증 메일을 발송했습니다. 메일함을 확인하고 링크를 클릭해 주세요."
-            )
+            try:
+                user.email_user(subject, message)
+                messages.success(request, "인증 메일을 발송했습니다. 메일함을 확인해 주세요.")
+            except Exception as e:
+                messages.warning(
+                    request,
+                    f"회원가입은 완료되었지만 메일 발송에 실패했습니다: {e}",
+                )
+
             return redirect("common:auth_portal")
 
-    # 로그인 처리
-    elif request.method == "POST" and "login-username" in request.POST:
-        if login_form.is_valid():
-            auth_login(request, login_form.get_user())
-            messages.success(request, "로그인에 성공했습니다.")
-            return redirect("pybo:main")
+    # ───────── 로그인 ─────────
+    if request.method == "POST" and "login-username" in request.POST:
+        username = request.POST.get("login-username")
+        password = request.POST.get("login-password")
 
-    # GET 또는 검증 실패 시
+        # 1) inactive 계정인지 직접 먼저 검사
+        user = User.objects.filter(username=username).first()
+        if user and user.check_password(password) and not user.is_active:
+            messages.error(request, "이메일이 인증되지 않았습니다.")
+        else:
+            # 2) 그 외의 경우는 LoginForm 정상 검증
+            login_form  = LoginForm(request, data=request.POST, prefix="login")
+            signup_form = UserForm(prefix="signup")   # 빈 폼으로 교체
+
+            if login_form.is_valid():          # 여기까지 오면 비번 일치 & active
+                user = login_form.get_user()
+                auth_login(request, user)
+                messages.success(request, "로그인에 성공했습니다.")
+                return redirect("pybo:main")
+
+            # 폼 전역 오류(아이디 미가입 등) 메시지
+            for err in login_form.non_field_errors():
+                messages.error(request, err)
+
+    # ───────── GET 또는 검증 실패 ─────────
     return render(
         request,
         "common/auth.html",
-        {"login_form": login_form, "signup_form": signup_form},
+        {"signup_form": signup_form, "login_form": login_form},
     )
 
-
-
+# ───────────────────────────────────────────
+# 2.  이메일 인증 링크 처리
+# ───────────────────────────────────────────
 def activate(request, uidb64, token):
-    """회원 이메일 인증 처리"""
     try:
         uid  = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
@@ -106,35 +100,29 @@ def activate(request, uidb64, token):
         messages.success(request, "이메일 인증이 완료되었습니다. 로그인해 주세요.")
     else:
         messages.error(request, "유효하지 않은 인증 링크입니다.")
+
     return redirect("common:auth_portal")
 
-# ────────────────────────────────────────────
-# 2.  로그아웃 뷰
-# ────────────────────────────────────────────
-
+# ───────────────────────────────────────────
+# 3.  로그아웃
+# ───────────────────────────────────────────
 def logout_view(request):
-    """/common/logout/  – 세션 종료 후 메인으로"""
     auth_logout(request)
     messages.success(request, "로그아웃 되었습니다.")
     return redirect("common:auth_portal")
 
-
-# ────────────────────────────────────────────
-# 3.  기존 개별 로그인 · 회원가입 URL 호환 (선택)
-#     → 모두 통합 페이지로 리다이렉트
-# ────────────────────────────────────────────
-
+# ───────────────────────────────────────────
+# 4.  구 URL 호환
+# ───────────────────────────────────────────
 def login_view(request):
     return redirect("common:auth_portal")
 
 def signup(request):
     return redirect("common:auth_portal")
 
-
-# ────────────────────────────────────────────
-# 4.  기타 기능 페이지 데모
-# ────────────────────────────────────────────
-
+# ───────────────────────────────────────────
+# 5.  기타 데모 페이지
+# ───────────────────────────────────────────
 def photo_analysis(request):
     return render(request, "site1/photo_analysis.html")
 

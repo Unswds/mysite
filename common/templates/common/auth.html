@@ -47,6 +47,7 @@
   .error-panel-top ul {
     margin: .5rem 0 0 1.2rem;
   }
+  .message-panel-top.error { background:#e74c3c; }
 </style>
 {% endblock extra_css %}
 
@@ -64,6 +65,8 @@
     <div class="error-panel-top">
       <strong>회원가입 오류</strong>
       <ul>
+        {% for err in signup_form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+
         {% for field, errs in signup_form.errors.items %}
           {% for err in errs %}
             <li>{{ err }}</li>
@@ -75,6 +78,7 @@
     <div class="error-panel-top">
       <strong>로그인 오류</strong>
       <ul>
+        {% for err in login_form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
         {% for field, errs in login_form.errors.items %}
           {% for err in errs %}
             <li>{{ err }}</li>
